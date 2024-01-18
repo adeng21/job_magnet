@@ -1,0 +1,111 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+model User {
+  id                   Int                    @id @default(autoincrement())
+  email                String                 @unique
+  name                 String?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  CompanyFollower      CompanyFollower[]
+  JobFollower          JobFollower[]
+  UserCompanyJobStatus UserCompanyJobStatus[]
+}
+
+model Company {
+  id              Int               @id @default(autoincrement())
+  name            String
+  jobs_page       String?
+  logo_url        String?
+  lastRefreshedAt DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  CompanyFollower CompanyFollower[]
+  CompanyJob      CompanyJob[]
+}
+
+model CompanyFollower {
+  id        Int      @id @default(autoincrement())
+  companyId Int
+  userId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Company   Company  @relation(fields: [companyId], references: [id])
+  User      User     @relation(fields: [userId], references: [id])
+}
+
+model CompanyJob {
+  id                   Int                    @id @default(autoincrement())
+  title                String
+  url                  String
+  location             String?
+  active               Boolean                @default(true)
+  deactivatedAt        DateTime?
+  companyId            Int
+  jobKeywordId         Int
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  JobKeyword           JobKeyword             @relation(fields: [jobKeywordId], references: [id])
+  Company              Company                @relation(fields: [companyId], references: [id])
+  UserCompanyJobStatus UserCompanyJobStatus[]
+}
+
+model JobKeyword {
+  id              Int               @id @default(autoincrement())
+  title           String
+  department      Department?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  CompanyJob      CompanyJob[]
+  JobFollower     JobFollower[]
+  JobKeywordAlias JobKeywordAlias[]
+}
+
+model JobKeywordAlias {
+  id           Int        @id @default(autoincrement())
+  alias        String
+  jobKeywordId Int
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  JobKeyword   JobKeyword @relation(fields: [jobKeywordId], references: [id])
+}
+
+model JobFollower {
+  id           Int        @id @default(autoincrement())
+  userId       Int
+  jobKeywordId Int
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  User         User       @relation(fields: [userId], references: [id])
+  JobKeyword   JobKeyword @relation(fields: [jobKeywordId], references: [id])
+}
+
+model UserCompanyJobStatus {
+  id           Int        @id @default(autoincrement())
+  userId       Int
+  companyJobId Int
+  interested   Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  User         User       @relation(fields: [userId], references: [id])
+  CompanyJob   CompanyJob @relation(fields: [companyJobId], references: [id])
+}
+
+enum Department {
+  ENGINEERING
+  PRODUCT
+  DESIGN
+  MARKETING
+  SALES
+  CUSTOMER_SUCCESS
+  FINANCE
+  PEOPLE
+  LEGAL
+}
