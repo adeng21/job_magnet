@@ -1,10 +1,12 @@
 import { db } from "@/db";
-import JobsTable from "@/components/JobsTable";
+import { JobsDataTable } from "./jobsDataTable";
+import { getActiveCompanyJobs } from "@/queries/companyjob";
 
-const Page = () => {
+const Page = async () => {
+  const data = await getActiveCompanyJobs();
   return (
-    <div className="container mx-auto p-8 bg-gray-100">
-      <JobsTable />
+    <div className="container">
+      <JobsDataTable data={data} />
     </div>
   );
 };
