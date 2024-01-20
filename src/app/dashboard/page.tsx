@@ -3,7 +3,7 @@ import JobsTable from "@/components/JobsTable";
 
 const Page = () => {
   return (
-    <div>
+    <div className="container mx-auto p-8 bg-gray-100">
       <JobsTable />
     </div>
   );
