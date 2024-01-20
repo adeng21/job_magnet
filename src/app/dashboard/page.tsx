@@ -1,4 +1,3 @@
-import { db } from "@/db";
 import { JobsDataTable } from "./jobsDataTable";
 import { getActiveCompanyJobs } from "@/queries/companyjob";
 
