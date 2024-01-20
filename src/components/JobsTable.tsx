@@ -1,17 +1,11 @@
-type Company = {
-  name: string;
-};
-type Job = {
-  Company: Company;
-  url: string;
-  title: string;
-  location: string;
-};
+"use client";
+import { db } from "../db";
+import { CompanyJob } from "@/companyjob";
+import { getActiveCompanyJobs } from "@/queries/companyjob";
 
-interface JobsProps {
-  jobs: Job[];
-}
-const JobsTable = ({ jobs }: JobsProps) => {
+const JobsTable = async () => {
+  const data = await getActiveCompanyJobs();
+
   return (
     <div>
       <h3>Current Jobs</h3>
@@ -22,8 +16,8 @@ const JobsTable = ({ jobs }: JobsProps) => {
           <th>Location</th>
           <th>Link</th>
         </tr>
-        {jobs.map((job, idx) => (
-          <tr key={idx}>
+        {data.map((job: CompanyJob) => (
+          <tr key={job.id}>
             <td>{job.Company.name}</td>
             <td>{job.title}</td>
             <td>{job.location}</td>
