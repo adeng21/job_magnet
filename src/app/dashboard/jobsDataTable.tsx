@@ -90,11 +90,11 @@ export function JobsDataTable<TData>({ data }: DataTableProps<TData>) {
 
   return (
     <div>
-      <div className="flex items-center py-4 bg-white shadow-md rounded-lg">
+      <div className="flex items-center py-4 bg-white shadow-md rounded-lg my-6">
         <Select
           onValueChange={(e) => table.getColumn("location")?.setFilterValue(e)}
         >
-          <SelectTrigger className="w-[280px]">
+          <SelectTrigger className="mx-4 px-4 w-[280px]">
             <SelectValue placeholder="Filter by location" />
           </SelectTrigger>
           <SelectContent>
