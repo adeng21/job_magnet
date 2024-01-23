@@ -9,7 +9,7 @@ datasource db {
 }
 
 model User {
-  id                   Int                    @id @default(autoincrement())
+  id                   String                 @id @unique
   email                String                 @unique
   name                 String?
   createdAt            DateTime               @default(now())
@@ -34,7 +34,7 @@ model Company {
 model CompanyFollower {
   id        Int      @id @default(autoincrement())
   companyId Int
-  userId    Int
+  userId    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   Company   Company  @relation(fields: [companyId], references: [id])
@@ -79,7 +79,7 @@ model JobKeywordAlias {
 
 model JobFollower {
   id           Int        @id @default(autoincrement())
-  userId       Int
+  userId       String
   jobKeywordId Int
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
@@ -89,13 +89,15 @@ model JobFollower {
 
 model UserCompanyJobStatus {
   id           Int        @id @default(autoincrement())
-  userId       Int
+  userId       String
   companyJobId Int
   interested   Boolean    @default(true)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
   User         User       @relation(fields: [userId], references: [id])
   CompanyJob   CompanyJob @relation(fields: [companyJobId], references: [id])
+
+  @@unique([userId, companyJobId])
 }
 
 enum Department {

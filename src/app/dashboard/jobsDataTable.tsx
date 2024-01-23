@@ -28,6 +28,8 @@ import {
   SelectValue,
   SelectItem,
 } from "@/components/ui/select";
+import { ArchiveIcon } from "lucide-react";
+import { markCompanyJobNotInterested } from "@/mutations";
 
 interface DataTableProps<TData> {
   data: TData[];
@@ -64,6 +66,18 @@ const columns: ColumnDef<CompanyJob>[] = [
   {
     accessorKey: "location",
     header: "Location",
+  },
+  {
+    accessorKey: "interested",
+    header: "Not Interested?",
+    cell: ({ row }) => {
+      return (
+        <ArchiveIcon
+          onClick={() => markCompanyJobNotInterested(row.original.id)}
+          className="h-6 w-6 text-red-400 hover:text-gray-600 cursor-pointer"
+        />
+      );
+    },
   },
 ];
 
