@@ -8,7 +8,7 @@ import {
   ColumnFiltersState,
   getFilteredRowModel,
 } from "@tanstack/react-table";
-
+import { locationSanitizer } from "@/lib/utils";
 import {
   Table,
   TableBody,
@@ -68,6 +68,13 @@ const getColumns = (removeFromFilteredData: RemoveFromFilteredDataType) => [
   {
     accessorKey: "location",
     header: "Location",
+    cell: ({ row }: any) => {
+      return (
+        <div className="font-semibold">
+          {locationSanitizer(row.original.location)}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "interested",
@@ -92,7 +99,7 @@ export function JobsDataTable<TData>({ data }: DataTableProps<TData>) {
   const uniqueLocations = [
     ...new Set(
       data
-        .map((job) => job.location)
+        .map((job) => locationSanitizer(job.location))
         .filter((item) => item !== null && item !== "")
     ),
   ];
