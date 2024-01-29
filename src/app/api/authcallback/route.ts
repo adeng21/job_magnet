@@ -4,9 +4,9 @@ import { db } from "@/db";
 import Error from "next/error";
 
 export const POST = async (req: NextRequest) => {
-  console.log("hititng request");
   const { getUser } = getKindeServerSession();
   const user = await getUser();
+  console.log("hitting authcallback request, user", user);
 
   if (!user || !user.id || !user.email) {
     return new Response(JSON.stringify({ message: "Unauthorized" }), {
@@ -17,6 +17,7 @@ export const POST = async (req: NextRequest) => {
     });  }
   const dbUser = await db.user.findUnique({ where: { id: user.id } });
   if (!dbUser) {
+    console.log("creating new user")
     await db.user.create({ data: { id: user.id, email: user.email } });
   }
   return new Response(JSON.stringify({ success: true }), {

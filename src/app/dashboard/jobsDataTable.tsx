@@ -32,14 +32,16 @@ import { ArchiveIcon } from "lucide-react";
 import { markCompanyJobNotInterested } from "@/mutations";
 
 interface DataTableProps<TData> {
-  data: TData[];
+  data: CompanyJob[];
 }
 
-const columns: ColumnDef<CompanyJob>[] = [
+type RemoveFromFilteredDataType = (jobId: number) => void;
+
+const getColumns = (removeFromFilteredData: RemoveFromFilteredDataType) => [
   {
     accessorKey: "Company.name",
     header: "Company",
-    cell: ({ row }) => {
+    cell: ({ row }: any) => {
       return (
         <Image
           alt="company name"
@@ -53,7 +55,7 @@ const columns: ColumnDef<CompanyJob>[] = [
   {
     accessorKey: "title",
     header: "Role",
-    cell: ({ row }) => {
+    cell: ({ row }: any) => {
       return (
         <Link href={row.original.url} target="_blank">
           <div className="font-semibold hover:underline">
@@ -70,10 +72,13 @@ const columns: ColumnDef<CompanyJob>[] = [
   {
     accessorKey: "interested",
     header: "Not Interested?",
-    cell: ({ row }) => {
+    cell: ({ row }: any) => {
       return (
         <ArchiveIcon
-          onClick={() => markCompanyJobNotInterested(row.original.id)}
+          onClick={() => {
+            markCompanyJobNotInterested(row.original.id);
+            removeFromFilteredData(row.original.id);
+          }}
           className="h-6 w-6 text-red-400 hover:text-gray-600 cursor-pointer"
         />
       );
@@ -83,6 +88,7 @@ const columns: ColumnDef<CompanyJob>[] = [
 
 export function JobsDataTable<TData>({ data }: DataTableProps<TData>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [filteredData, setFilteredData] = useState<CompanyJob[]>(data);
   const uniqueLocations = [
     ...new Set(
       data
@@ -91,9 +97,15 @@ export function JobsDataTable<TData>({ data }: DataTableProps<TData>) {
     ),
   ];
 
+  const removeFromFilteredData = (jobId: number) => {
+    setFilteredData(filteredData.filter((job) => job.id !== jobId));
+  };
+
+  const columns = getColumns(removeFromFilteredData);
+
   const table = useReactTable({
     columns,
-    data,
+    data: filteredData,
     getCoreRowModel: getCoreRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
