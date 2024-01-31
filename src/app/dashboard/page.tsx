@@ -12,6 +12,16 @@ const Page = async () => {
   const dbUser = await db.user.findUnique({ where: { id: user.id } });
   if (!dbUser) redirect("/authcallback?origin=dashboard");
 
+  const followsACompany = await db.companyFollower.findFirst({
+    where: { userId: user.id },
+  });
+  if (!followsACompany) redirect("/preferences");
+
+  const followsAJob = await db.jobFollower.findFirst({
+    where: { userId: user.id },
+  });
+  if (!followsAJob) redirect("/preferences");
+
   console.log(user.id);
 
   const data = await getInterestedActiveCompanyJobs(user.id);

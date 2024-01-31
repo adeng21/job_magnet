@@ -25,6 +25,7 @@ model Company {
   jobs_page       String?
   logo_url        String?
   lastRefreshedAt DateTime?
+  deactivated     Boolean           @default(false)
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
   CompanyFollower CompanyFollower[]

@@ -28,7 +28,7 @@ import {
   SelectValue,
   SelectItem,
 } from "@/components/ui/select";
-import { ArchiveIcon } from "lucide-react";
+import { ArchiveIcon, XCircle } from "lucide-react";
 import {
   markCompanyJobNotInterested,
   updateApplicationStatus,
@@ -170,6 +170,7 @@ export function JobsDataTable<TData>({ data }: DataTableProps<TData>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [filteredData, setFilteredData] = useState<CompanyJob[]>(data);
   const [activeTab, setActiveTab] = useState(tabs[0]);
+  const [locationFilter, setLocationFilter] = useState<string>("");
   const uniqueLocations = [
     ...new Set(
       data
@@ -198,13 +199,20 @@ export function JobsDataTable<TData>({ data }: DataTableProps<TData>) {
     },
   });
 
+  const locationColumn = table.getColumn("location");
+  const updateLocationFilter = (location: string) => {
+    setLocationFilter(location);
+    locationColumn?.setFilterValue(location);
+  };
+
   return (
     <div>
       <div className="flex items-center py-4 bg-white shadow-md rounded-lg my-6">
         <Select
-          onValueChange={(e) => table.getColumn("location")?.setFilterValue(e)}
+          value={locationFilter}
+          onValueChange={(e) => updateLocationFilter(e)}
         >
-          <SelectTrigger className="mx-4 px-4 w-[280px]">
+          <SelectTrigger className="mx-4 px-4 w-[180px]">
             <SelectValue placeholder="Filter by location" />
           </SelectTrigger>
           <SelectContent>
@@ -215,6 +223,12 @@ export function JobsDataTable<TData>({ data }: DataTableProps<TData>) {
             ))}
           </SelectContent>
         </Select>
+        {locationColumn?.getFilterValue() ? (
+          <XCircle
+            onClick={() => updateLocationFilter("")}
+            className="text-red-400 hover:text-red-600"
+          ></XCircle>
+        ) : null}
       </div>
       <Tabs defaultValue={activeTab.name}>
         <TabsList>
