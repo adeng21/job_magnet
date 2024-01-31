@@ -230,27 +230,27 @@ export function JobsDataTable<TData>({ data }: DataTableProps<TData>) {
         </TabsList>
 
         <div className="bg-white shadow-md rounded-lg p-6">
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                      </TableHead>
-                    );
-                  })}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              <TabsContent value={activeTab.name}>
+          <TabsContent value={activeTab.name}>
+            <Table>
+              <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => {
+                      return (
+                        <TableHead key={header.id}>
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
+                        </TableHead>
+                      );
+                    })}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
                 {table.getRowModel().rows?.length ? (
                   table
                     .getRowModel()
@@ -280,9 +280,9 @@ export function JobsDataTable<TData>({ data }: DataTableProps<TData>) {
                     </TableCell>
                   </TableRow>
                 )}
-              </TabsContent>
-            </TableBody>
-          </Table>
+              </TableBody>
+            </Table>
+          </TabsContent>
         </div>
       </Tabs>
     </div>
