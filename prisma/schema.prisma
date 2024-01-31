@@ -88,14 +88,15 @@ model JobFollower {
 }
 
 model UserCompanyJobStatus {
-  id           Int        @id @default(autoincrement())
-  userId       String
-  companyJobId Int
-  interested   Boolean    @default(true)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  User         User       @relation(fields: [userId], references: [id])
-  CompanyJob   CompanyJob @relation(fields: [companyJobId], references: [id])
+  id                Int               @id @default(autoincrement())
+  userId            String
+  companyJobId      Int
+  applicationStatus ApplicationStatus @default(TO_APPLY)
+  interested        Boolean           @default(true)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  User              User              @relation(fields: [userId], references: [id])
+  CompanyJob        CompanyJob        @relation(fields: [companyJobId], references: [id])
 
   @@unique([userId, companyJobId])
 }
@@ -110,4 +111,13 @@ enum Department {
   FINANCE
   PEOPLE
   LEGAL
+}
+
+enum ApplicationStatus {
+  TO_APPLY
+  APPLIED
+  INTERVIEWING
+  OFFER
+  REJECTED
+  WITHDRAWN
 }

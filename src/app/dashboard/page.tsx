@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 const Page = async () => {
   const { getUser } = getKindeServerSession();
   const user = await getUser();
-  if (!user) redirect("/sign-in");
+  if (!user) redirect("/");
 
   const dbUser = await db.user.findUnique({ where: { id: user.id } });
   if (!dbUser) redirect("/authcallback?origin=dashboard");

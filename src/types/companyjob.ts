@@ -3,6 +3,10 @@ type Company = {
     name: string;
 }
 
+type UserCompanyJobStatus = {
+    applicationStatus: string;
+}
+
 export type CompanyJob = {
     id: number;
     url: string;
@@ -10,4 +14,5 @@ export type CompanyJob = {
     location: string | null;
     createdAt: Date;
     Company: Company
+    UserCompanyJobStatus: UserCompanyJobStatus[]
 }

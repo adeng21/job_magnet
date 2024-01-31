@@ -20,7 +20,7 @@ import {
 import { CompanyJob } from "@/types/companyjob";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useOptimistic } from "react";
 import {
   Select,
   SelectTrigger,
@@ -29,7 +29,12 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { ArchiveIcon } from "lucide-react";
-import { markCompanyJobNotInterested } from "@/mutations";
+import {
+  markCompanyJobNotInterested,
+  updateApplicationStatus,
+} from "@/mutations";
+import { ApplicationStatus } from "@prisma/client";
+import { Tabs, TabsList, TabsContent, TabsTrigger } from "@/components/ui/tabs";
 
 interface DataTableProps<TData> {
   data: CompanyJob[];
@@ -77,14 +82,42 @@ const getColumns = (removeFromFilteredData: RemoveFromFilteredDataType) => [
     },
   },
   {
+    accessorKey: "status",
+    header: "Application Status",
+    cell: ({ row }: any) => {
+      const status = row.original.UserCompanyJobStatus[0]?.applicationStatus;
+      return (
+        <Select
+          onValueChange={(e) =>
+            updateApplicationStatus(
+              row.original.id,
+              Object.values(ApplicationStatus).find((status) => status === e)
+            )
+          }
+        >
+          <SelectTrigger className="w-[140px]">
+            <SelectValue placeholder={status ? status : "..."} />
+          </SelectTrigger>
+          <SelectContent>
+            {Object.values(ApplicationStatus).map((status) => (
+              <SelectItem key={status} value={status}>
+                {status}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      );
+    },
+  },
+  {
     accessorKey: "interested",
     header: "Not Interested?",
     cell: ({ row }: any) => {
       return (
         <ArchiveIcon
           onClick={() => {
-            markCompanyJobNotInterested(row.original.id);
             removeFromFilteredData(row.original.id);
+            markCompanyJobNotInterested(row.original.id);
           }}
           className="h-6 w-6 text-red-400 hover:text-gray-600 cursor-pointer"
         />
@@ -93,9 +126,50 @@ const getColumns = (removeFromFilteredData: RemoveFromFilteredDataType) => [
   },
 ];
 
+const tabs = [
+  {
+    name: "Recent",
+    filter: (job: CompanyJob) => {
+      const date = new Date();
+      date.setDate(date.getDate() - 7);
+      return new Date(job.createdAt) > date;
+    },
+  },
+  {
+    name: "Interested",
+    filter: (job: CompanyJob) =>
+      job.UserCompanyJobStatus[0]?.applicationStatus === "TO_APPLY",
+  },
+  {
+    name: "Applied",
+    filter: (job: CompanyJob) =>
+      job.UserCompanyJobStatus[0]?.applicationStatus === "APPLIED",
+  },
+  {
+    name: "Interviewing",
+    filter: (job: CompanyJob) =>
+      job.UserCompanyJobStatus[0]?.applicationStatus === "INTERVIEWING",
+  },
+  {
+    name: "Offer",
+    filter: (job: CompanyJob) =>
+      job.UserCompanyJobStatus[0]?.applicationStatus === "OFFER",
+  },
+  {
+    name: "Rejected",
+    filter: (job: CompanyJob) =>
+      job.UserCompanyJobStatus[0]?.applicationStatus === "REJECTED",
+  },
+  {
+    name: "All",
+    filter: () => true,
+  },
+];
+
 export function JobsDataTable<TData>({ data }: DataTableProps<TData>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [filteredData, setFilteredData] = useState<CompanyJob[]>(data);
+  const [activeTab, setActiveTab] = useState(tabs[0]);
   const uniqueLocations = [
     ...new Set(
       data
@@ -105,7 +179,10 @@ export function JobsDataTable<TData>({ data }: DataTableProps<TData>) {
   ];
 
   const removeFromFilteredData = (jobId: number) => {
-    setFilteredData(filteredData.filter((job) => job.id !== jobId));
+    const index = filteredData.findIndex((job) => job.id === jobId);
+    const newData = [...filteredData];
+    newData.splice(index, 1);
+    setFilteredData(newData);
   };
 
   const columns = getColumns(removeFromFilteredData);
@@ -139,56 +216,75 @@ export function JobsDataTable<TData>({ data }: DataTableProps<TData>) {
           </SelectContent>
         </Select>
       </div>
-      <div className="bg-white shadow-md rounded-lg p-6">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
+      <Tabs defaultValue={activeTab.name}>
+        <TabsList>
+          {tabs.map((tab) => (
+            <TabsTrigger
+              key={tab.name}
+              value={tab.name}
+              onClick={() => setActiveTab(tab)}
+            >
+              {tab.name}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+
+        <div className="bg-white shadow-md rounded-lg p-6">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    );
+                  })}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+              ))}
+            </TableHeader>
+            <TableBody>
+              <TabsContent value={activeTab.name}>
+                {table.getRowModel().rows?.length ? (
+                  table
+                    .getRowModel()
+                    .rows.filter((row) => activeTab.filter(row.original))
+                    .map((row) => (
+                      <TableRow
+                        key={row.id}
+                        data-state={row.getIsSelected() && "selected"}
+                      >
+                        {row.getVisibleCells().map((cell) => (
+                          <TableCell key={cell.id}>
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center"
+                    >
+                      No results.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TabsContent>
+            </TableBody>
+          </Table>
+        </div>
+      </Tabs>
     </div>
   );
 }

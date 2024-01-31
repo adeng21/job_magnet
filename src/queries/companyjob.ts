@@ -20,6 +20,14 @@ export async function getInterestedActiveCompanyJobs(userId: string): Promise<Co
             select: {
                 name: true
             }
+        },
+        UserCompanyJobStatus: {
+            where: {
+                userId: userId
+            },
+            select: {
+              applicationStatus: true,
+            }
         }
     }
   }); 
