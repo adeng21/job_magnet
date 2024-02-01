@@ -62,7 +62,7 @@ export async function updateApplicationStatus(companyJobId: number, applicationS
 
         if(!jobStatus) {
             console.log("creating new job status")
-            await db.userCompanyJobStatus.create({
+             jobStatus = await db.userCompanyJobStatus.create({
                 data: {
                     companyJobId: companyJobId,
                     userId: user.id,
@@ -73,6 +73,8 @@ export async function updateApplicationStatus(companyJobId: number, applicationS
             console.log("updating job status")
             await db.userCompanyJobStatus.update({ where: { userId_companyJobId: {companyJobId: companyJobId, userId: user.id }}, data: { applicationStatus: applicationStatus } })
         }
+    // return new status    
+    return applicationStatus
 }
 
 export async function saveFollowerPreferences(jobKeywordIds: number[], companyIds: number[]) {

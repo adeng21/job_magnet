@@ -17,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CompanyJob } from "@/types";
+import { CompanyJob, UserCompanyJobStatus } from "@/types";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useOptimistic } from "react";
@@ -41,8 +41,12 @@ interface DataTableProps<TData> {
 }
 
 type RemoveFromFilteredDataType = (jobId: number) => void;
+type UpdateLocalApplicationStatusType = (jobId: number, status: string) => void;
 
-const getColumns = (removeFromFilteredData: RemoveFromFilteredDataType) => [
+const getColumns = (
+  removeFromFilteredData: RemoveFromFilteredDataType,
+  updateLocalApplicationStatus: UpdateLocalApplicationStatusType
+) => [
   {
     accessorKey: "Company.name",
     header: "Company",
@@ -88,12 +92,17 @@ const getColumns = (removeFromFilteredData: RemoveFromFilteredDataType) => [
       const status = row.original.UserCompanyJobStatus[0]?.applicationStatus;
       return (
         <Select
-          onValueChange={(e) =>
+          onValueChange={(e) => {
             updateApplicationStatus(
               row.original.id,
               Object.values(ApplicationStatus).find((status) => status === e)
-            )
-          }
+            ).then((status: string) => {
+              console.log("return status", status);
+              if (status) {
+                updateLocalApplicationStatus(row.original.id, status);
+              }
+            });
+          }}
         >
           <SelectTrigger className="w-[140px]">
             <SelectValue placeholder={status ? status : "..."} />
@@ -186,7 +195,26 @@ export function JobsDataTable<TData>({ data }: DataTableProps<TData>) {
     setFilteredData(newData);
   };
 
-  const columns = getColumns(removeFromFilteredData);
+  const updateLocalApplicationStatus = (jobId: number, status: string) => {
+    const index = filteredData.findIndex((job) => job.id === jobId);
+    const newData = [...filteredData];
+    const existingStatus = newData[index].UserCompanyJobStatus[0];
+    if (existingStatus) {
+      existingStatus.applicationStatus = status;
+    } else {
+      newData[index].UserCompanyJobStatus = [
+        {
+          applicationStatus: status,
+        },
+      ] as UserCompanyJobStatus[];
+    }
+    setFilteredData(newData);
+  };
+
+  const columns = getColumns(
+    removeFromFilteredData,
+    updateLocalApplicationStatus
+  );
 
   const table = useReactTable({
     columns,

@@ -10,6 +10,7 @@ const Page = async () => {
 
   const supportedCompanies = await db.company.findMany({
     where: { deactivated: false },
+    orderBy: { name: "asc" },
   });
 
   const supportedJobKeywords = await db.jobKeyword.findMany();

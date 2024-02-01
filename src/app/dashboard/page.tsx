@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { JobsDataTable } from "./jobsDataTable";
-import { getInterestedActiveCompanyJobs } from "@/queries/companyjob";
+import { getInterestedActiveCompanyJobs } from "@/queries";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { redirect } from "next/navigation";
 

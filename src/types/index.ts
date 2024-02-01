@@ -19,7 +19,7 @@ export type JobFollower = {
     jobKeywordId: number;
 }
 
-type UserCompanyJobStatus = {
+export type UserCompanyJobStatus = {
     applicationStatus: string;
 }
 
