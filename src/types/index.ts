@@ -1,6 +1,22 @@
 
-type Company = {
+export type Company = {
     name: string;
+    id: number;
+}
+
+export type JobKeyword = {
+    id: number;
+    title: string;
+}
+
+export type CompanyFollower = {
+    userId: string;
+    companyId: number;
+}
+
+export type JobFollower = {
+    userId: string;
+    jobKeywordId: number;
 }
 
 type UserCompanyJobStatus = {

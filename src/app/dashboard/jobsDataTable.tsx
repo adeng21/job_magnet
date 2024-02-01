@@ -17,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CompanyJob } from "@/types/companyjob";
+import { CompanyJob } from "@/types";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useOptimistic } from "react";

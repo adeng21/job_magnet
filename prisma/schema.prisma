@@ -36,10 +36,13 @@ model CompanyFollower {
   id        Int      @id @default(autoincrement())
   companyId Int
   userId    String
+  following Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   Company   Company  @relation(fields: [companyId], references: [id])
   User      User     @relation(fields: [userId], references: [id])
+
+  @@unique([companyId, userId])
 }
 
 model CompanyJob {
@@ -82,10 +85,13 @@ model JobFollower {
   id           Int        @id @default(autoincrement())
   userId       String
   jobKeywordId Int
+  following    Boolean    @default(true)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
   User         User       @relation(fields: [userId], references: [id])
   JobKeyword   JobKeyword @relation(fields: [jobKeywordId], references: [id])
+
+  @@unique([userId, jobKeywordId])
 }
 
 model UserCompanyJobStatus {

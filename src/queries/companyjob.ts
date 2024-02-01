@@ -1,6 +1,5 @@
 import { db } from "@/db";
-import { CompanyJob } from "@/types/companyjob";
-import { cache } from "react";
+import { CompanyJob } from "@/types";
 
 export async function getInterestedActiveCompanyJobs(userId: string): Promise<CompanyJob[]> {
   return await db.companyJob.findMany({
@@ -18,7 +17,8 @@ export async function getInterestedActiveCompanyJobs(userId: string): Promise<Co
     include: {
         Company: {
             select: {
-                name: true
+                name: true,
+                id: true
             }
         },
         UserCompanyJobStatus: {
