@@ -2,7 +2,7 @@
 
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { db } from "@/db";
-import { ApplicationStatus } from "@prisma/client";
+import { ApplicationStatus, LocationArea } from "@prisma/client";
 
 export async function markCompanyJobNotInterested(companyJobId: number) {
     const { getUser } = getKindeServerSession();
@@ -77,7 +77,7 @@ export async function updateApplicationStatus(companyJobId: number, applicationS
     return applicationStatus
 }
 
-export async function saveFollowerPreferences(jobKeywordIds: number[], companyIds: number[]) {
+export async function saveFollowerPreferences(jobKeywordIds: number[], companyIds: number[], locations: LocationArea[]) {
     const { getUser } = getKindeServerSession();
     const user = await getUser();
 
@@ -107,6 +107,15 @@ export async function saveFollowerPreferences(jobKeywordIds: number[], companyId
         data: { following: false },
     })
 
+    const oldLocations = await db.userLocationPreference.deleteMany({
+        where: {
+            userId: user.id,
+            locationArea: {
+                notIn: locations
+            }
+        }
+    })
+
     // create new follower preferences
     companyIds.forEach(async (companyId) => {
         let userCompany = await db.companyFollower.findUnique({ where: { companyId_userId: { userId: user.id, companyId: companyId } }})
@@ -127,6 +136,14 @@ export async function saveFollowerPreferences(jobKeywordIds: number[], companyId
         } else if(!userJobKeyword.following) {
             console.log("updating user job keyword following")
             await db.jobFollower.update({ where: { userId_jobKeywordId: { jobKeywordId: jobKeywordId, userId: user.id }}, data: { following: true } })
+        }
+    })
+
+    locations.forEach(async (location) => {
+        let userLocation = await db.userLocationPreference.findUnique({ where: { userId_locationArea: { userId: user.id, locationArea: location } }})
+        if(!userLocation) {
+            console.log("creating new user location")
+            await db.userLocationPreference.create({ data: { userId: user.id, locationArea: location } })
         }
     })
 }

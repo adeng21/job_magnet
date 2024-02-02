@@ -1,3 +1,4 @@
+import { LocationArea } from "@prisma/client";
 
 export type Company = {
     name: string;

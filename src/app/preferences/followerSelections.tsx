@@ -15,18 +15,53 @@ import { Button } from "@/components/ui/button";
 import { saveFollowerPreferences } from "@/mutations";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
+import { LocationArea } from "@prisma/client";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/components/ui/accordion";
+import { redirect } from "next/navigation";
 interface FollowerData {
   companies: Company[];
   jobs: JobKeyword[];
   userFollowedCompanies: CompanyFollower[];
   userFollowedJobs: JobFollower[];
+  userLocations: LocationArea[];
 }
+
+const USLocations = [
+  LocationArea.SF_BAY_AREA,
+  LocationArea.LOS_ANGELES,
+  LocationArea.NEW_YORK,
+  LocationArea.BOSTON,
+  LocationArea.CHICAGO,
+  LocationArea.SEATTLE,
+  LocationArea.AUSTIN,
+  LocationArea.WASHINGTON_DC,
+];
+
+const InternationalLocations = [
+  LocationArea.EUROPE,
+  LocationArea.ASIA,
+  LocationArea.AUSTRALIA,
+];
+
+const CanadaLocations = [
+  LocationArea.TORONTO,
+  LocationArea.VANCOUVER,
+  LocationArea.MONTREAL,
+  LocationArea.OTTAWA,
+  LocationArea.CALGARY,
+];
 
 export function FollowerSelections({
   companies,
   jobs,
   userFollowedCompanies,
   userFollowedJobs,
+  userLocations,
 }: FollowerData) {
   const [selectedCompanies, setSelectedCompanies] = useState<number[]>(
     userFollowedCompanies.map((c) => c.companyId)
@@ -35,9 +70,20 @@ export function FollowerSelections({
     userFollowedJobs.map((j) => j.jobKeywordId)
   );
 
+  const [selectedLocations, setSelectedLocations] =
+    useState<LocationArea[]>(userLocations);
+
   const [savingInProgress, setSavingInProgress] = useState(false);
 
   const { toast } = useToast();
+
+  const toggleLocation = (location: LocationArea) => {
+    if (selectedLocations.includes(location)) {
+      setSelectedLocations(selectedLocations.filter((l) => l !== location));
+    } else {
+      setSelectedLocations([...selectedLocations, location]);
+    }
+  };
 
   const toggleCompany = (companyId: number) => {
     if (selectedCompanies.includes(companyId)) {
@@ -54,13 +100,17 @@ export function FollowerSelections({
       setSelectedJobs([...selectedJobs, jobId]);
     }
   };
+  console.log("selected locations", selectedLocations);
 
-  const ableToSave = selectedCompanies.length > 0 && selectedJobs.length > 0;
+  const ableToSave =
+    selectedCompanies.length > 0 &&
+    selectedJobs.length > 0 &&
+    selectedLocations.length > 0;
 
   return (
     <div className="flex flex-col p-4 justify-between">
       <h1 className="flex font-bold text-xl py-4 items-center justify-center">
-        Select Jobs to Follow
+        What Jobs Are You Interested In?
       </h1>
       <div className="grid grid-cols-4 gap-8">
         {jobs.map((job) => (
@@ -78,7 +128,97 @@ export function FollowerSelections({
         ))}
       </div>
       <h1 className="flex font-bold text-xl py-4 items-center justify-center">
-        Select Companies to Follow
+        Where Do You Want to Work?
+      </h1>
+      <div className="grid grid-cols-4 gap-8">
+        <Badge
+          className={cn(
+            "p-2 m-4 rounded-lg hover:shadow-md hover:cursor-pointer text-sm flex items-center justify-center w-auto max-h-10",
+            selectedLocations.includes(LocationArea.REMOTE)
+              ? "bg-gray-200"
+              : "bg-white"
+          )}
+          variant="secondary"
+          onClick={() => toggleLocation(LocationArea.REMOTE)}
+        >
+          {LocationArea.REMOTE}
+        </Badge>
+        <Accordion type="single" collapsible>
+          <AccordionItem value="United States">
+            <AccordionTrigger>United States</AccordionTrigger>
+            <AccordionContent>
+              {USLocations.map((location) => {
+                return (
+                  <Badge
+                    key={location}
+                    className={cn(
+                      "p-2 m-4 rounded-lg hover:shadow-md hover:cursor-pointer text-sm flex items-center justify-center w-auto",
+                      selectedLocations.includes(location)
+                        ? "bg-gray-200"
+                        : "bg-white"
+                    )}
+                    variant="secondary"
+                    onClick={() => toggleLocation(location)}
+                  >
+                    {location.replace(/_/g, " ")}
+                  </Badge>
+                );
+              })}
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+        <Accordion type="single" collapsible>
+          <AccordionItem value="Canada">
+            <AccordionTrigger>Canada</AccordionTrigger>
+            <AccordionContent>
+              {CanadaLocations.map((location) => {
+                return (
+                  <Badge
+                    key={location}
+                    className={cn(
+                      "p-2 m-4 rounded-lg hover:shadow-md hover:cursor-pointer text-sm flex items-center justify-center w-auto",
+                      selectedLocations.includes(location)
+                        ? "bg-gray-200"
+                        : "bg-white"
+                    )}
+                    variant="secondary"
+                    onClick={() => toggleLocation(location)}
+                  >
+                    {location}
+                  </Badge>
+                );
+              })}
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+
+        <Accordion type="single" collapsible>
+          <AccordionItem value="International">
+            <AccordionTrigger>International</AccordionTrigger>
+            <AccordionContent>
+              {InternationalLocations.map((location) => {
+                return (
+                  <Badge
+                    key={location}
+                    className={cn(
+                      "p-2 m-4 rounded-lg hover:shadow-md hover:cursor-pointer text-sm flex items-center justify-center w-auto",
+                      selectedLocations.includes(location)
+                        ? "bg-gray-200"
+                        : "bg-white"
+                    )}
+                    variant="secondary"
+                    onClick={() => toggleLocation(location)}
+                  >
+                    {location}
+                  </Badge>
+                );
+              })}
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      </div>
+      <h1 className="flex font-bold text-xl py-4 items-center justify-center">
+        What Companies Are You Interested In?
       </h1>
       <div className="grid grid-cols-6 gap-8">
         {companies.map((company) => (
@@ -117,7 +257,11 @@ export function FollowerSelections({
         <Button
           onClick={() => {
             setSavingInProgress(true);
-            saveFollowerPreferences(selectedJobs, selectedCompanies)
+            saveFollowerPreferences(
+              selectedJobs,
+              selectedCompanies,
+              selectedLocations
+            )
               .then(() => {
                 setSavingInProgress(false);
 
@@ -125,6 +269,7 @@ export function FollowerSelections({
               })
               .catch((e) => {
                 setSavingInProgress(false);
+                console.log(e);
                 toast({
                   description: "Error saving preferences. Please try again.",
                 });
@@ -139,7 +284,7 @@ export function FollowerSelections({
           ) : ableToSave ? (
             "Save Preferences"
           ) : (
-            "Select at least one company and one job"
+            "Select at least one company, job & location"
           )}
         </Button>
       </div>

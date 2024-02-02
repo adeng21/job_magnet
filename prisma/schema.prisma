@@ -9,14 +9,26 @@ datasource db {
 }
 
 model User {
-  id                   String                 @id @unique
-  email                String                 @unique
-  name                 String?
-  createdAt            DateTime               @default(now())
-  updatedAt            DateTime               @updatedAt
-  CompanyFollower      CompanyFollower[]
-  JobFollower          JobFollower[]
-  UserCompanyJobStatus UserCompanyJobStatus[]
+  id                     String                   @id @unique
+  email                  String                   @unique
+  name                   String?
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime                 @updatedAt
+  CompanyFollower        CompanyFollower[]
+  JobFollower            JobFollower[]
+  UserCompanyJobStatus   UserCompanyJobStatus[]
+  UserLocationPreference UserLocationPreference[]
+}
+
+model UserLocationPreference {
+  id           Int          @id @default(autoincrement())
+  userId       String
+  locationArea LocationArea
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  User         User         @relation(fields: [userId], references: [id])
+
+  @@unique([userId, locationArea])
 }
 
 model Company {
@@ -127,4 +139,27 @@ enum ApplicationStatus {
   OFFER
   REJECTED
   WITHDRAWN
+}
+
+enum LocationArea {
+  REMOTE
+  // international
+  EUROPE
+  ASIA
+  AUSTRALIA
+  // north america
+  SF_BAY_AREA
+  LOS_ANGELES
+  NEW_YORK
+  BOSTON
+  CHICAGO
+  SEATTLE
+  AUSTIN
+  WASHINGTON_DC
+  // canada 
+  TORONTO
+  VANCOUVER
+  MONTREAL
+  CALGARY
+  OTTAWA
 }

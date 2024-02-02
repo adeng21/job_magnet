@@ -23,6 +23,10 @@ const Page = async () => {
     where: { userId: user.id, following: true },
   });
 
+  const userLocations = await db.userLocationPreference.findMany({
+    where: { userId: user.id },
+  });
+
   return (
     <div className="container">
       <div className="items-center py-4 bg-white shadow-md rounded-lg my-6">
@@ -31,6 +35,7 @@ const Page = async () => {
           jobs={supportedJobKeywords}
           userFollowedCompanies={userFollowedCompanies}
           userFollowedJobs={userFollowedJobs}
+          userLocations={userLocations.map((location) => location.locationArea)}
         />
       </div>
     </div>
